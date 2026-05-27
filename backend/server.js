@@ -20,7 +20,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "https://job-posting-app-client.vercel.app/",
-  ], // Add your local frontend URL here
+  ],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true,
