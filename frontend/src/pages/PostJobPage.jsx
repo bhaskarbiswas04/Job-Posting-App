@@ -35,6 +35,7 @@ const PostJobPage = ({ onAddJob, navigateToHome }) => {
       description,
       qualifications,
     } = formData;
+
     if (
       !title ||
       !company ||
@@ -54,8 +55,8 @@ const PostJobPage = ({ onAddJob, navigateToHome }) => {
       .map((item) => item.trim())
       .filter((item) => item.length > 0);
 
+    // Form data payload compiled for database compatibility
     const newJob = {
-      id: Date.now(), // Dynamic ID generation
       title,
       company,
       location,

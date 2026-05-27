@@ -1,5 +1,5 @@
 
-const JobCard = ({ job, onSeeDetails, onDelete }) => {
+const JobCard = ({ job, onDelete, onSeeDetails }) => {
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full">
       <div>
@@ -29,7 +29,7 @@ const JobCard = ({ job, onSeeDetails, onDelete }) => {
         </button>
         <button
           className="flex-1 bg-red-500 hover:bg-red-600 text-white text-sm font-medium py-2 px-4 rounded transition-colors"
-          onClick={() => onDelete(job.id)}
+          onClick={() => onDelete(job._id)} // Updated tracker property hook
         >
           Delete
         </button>
