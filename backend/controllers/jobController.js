@@ -1,9 +1,11 @@
-let jobs = require("../config/db");
+const Job = require("../models/jobModel");
 
-// @desc    Get all jobs
+// @desc    Get all jobs from MongoDB
 // @route   GET /api/jobs
-exports.getAllJobs = (req, res) => {
+exports.getAllJobs = async (req, res) => {
   try {
+    // Fetch jobs sorting by newest first
+    const jobs = await Job.find().sort({ createdAt: -1 });
     res.status(200).json(jobs);
   } catch (error) {
     res
@@ -12,9 +14,9 @@ exports.getAllJobs = (req, res) => {
   }
 };
 
-// @desc    Create a job posting
+// @desc    Create a job posting and save it in the database
 // @route   POST /api/jobs
-exports.createJob = (req, res) => {
+exports.createJob = async (req, res) => {
   try {
     const {
       title,
@@ -41,20 +43,19 @@ exports.createJob = (req, res) => {
         .json({ message: "Please include all required fields." });
     }
 
-    const newJob = {
-      id: Date.now(), // Generate unique numeric stamp ID
+    // Save directly to MongoDB using the model schema
+    const newJob = await Job.create({
       title,
       company,
       location,
-      salary,
+      salary: Number(salary),
       type,
       description,
       qualifications: Array.isArray(qualifications)
         ? qualifications
         : [qualifications],
-    };
+    });
 
-    jobs.unshift(newJob); // Push to the front of the list
     res.status(201).json(newJob);
   } catch (error) {
     res
@@ -66,24 +67,22 @@ exports.createJob = (req, res) => {
   }
 };
 
-// @desc    Delete a job posting
+// @desc    Delete a job posting from MongoDB
 // @route   DELETE /api/jobs/:id
-exports.deleteJob = (req, res) => {
+exports.deleteJob = async (req, res) => {
   try {
-    const jobId = parseInt(req.params.id);
-    const initialLength = jobs.length;
+    const job = await Job.findById(req.params.id);
 
-    jobs = jobs.filter((job) => job.id !== jobId);
-
-    if (jobs.length === initialLength) {
+    if (!job) {
       return res
         .status(404)
         .json({ message: "Job item not found with that reference ID." });
     }
 
+    await job.deleteOne();
     res
       .status(200)
-      .json({ message: "Job post successfully removed.", id: jobId });
+      .json({ message: "Job post successfully removed.", id: req.params.id });
   } catch (error) {
     res
       .status(500)
