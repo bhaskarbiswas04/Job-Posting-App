@@ -5,6 +5,9 @@ import {
   Route,
   useNavigate,
 } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import JobDetailsPage from "./pages/JobDetailsPage";
@@ -18,7 +21,6 @@ function AppContent() {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
-  // Fetch live jobs data on mount
   useEffect(() => {
     const fetchJobs = async () => {
       try {
@@ -40,7 +42,7 @@ function AppContent() {
     fetchJobs();
   }, []);
 
-  // Handle posting a new job
+  // Handle posting a new job with Toast confirmation
   const handleAddJob = async (newJobData) => {
     try {
       const response = await fetch(API_BASE_URL, {
@@ -52,12 +54,49 @@ function AppContent() {
 
       if (response.ok) {
         setJobs((prevJobs) => [savedJob, ...prevJobs]);
-        navigate("/"); // Clean URL redirection to Home
+
+        toast.success("Successfully job created and posted!", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+
+        navigate("/");
       } else {
-        alert(`Error saving: ${savedJob.message}`);
+        toast.error(`Error saving: ${savedJob.message}`);
       }
     } catch (error) {
       console.error("Failed to post job:", error);
+      toast.error("Network error. Failed to save job.");
+    }
+  };
+
+  // Handle deleting a job with Toast confirmation
+  const handleDeleteJob = async (id) => {
+    if (!window.confirm("Are you sure you want to delete this job posting?"))
+      return;
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/${id}`, {
+        method: "DELETE",
+      });
+
+      if (response.ok) {
+        setJobs((prevJobs) => prevJobs.filter((job) => job._id !== id));
+
+        // Success toast notification for deletion
+        toast.success("Job posting successfully deleted!", {
+          position: "top-right",
+          autoClose: 3000,
+          theme: "colored",
+        });
+      } else {
+        const errorData = await response.json();
+        toast.error(`Deletion Failed: ${errorData.message}`);
+      }
+    } catch (error) {
+      console.error("Error deleting record:", error);
+      toast.error("Network error. Failed to delete job.");
     }
   };
 
@@ -82,6 +121,7 @@ function AppContent() {
   return (
     <div className="font-sans antialiased text-gray-900 bg-gray-50 min-h-screen">
       <Navbar />
+      <ToastContainer />
 
       <Routes>
         <Route
@@ -89,17 +129,14 @@ function AppContent() {
           element={
             <HomePage
               jobs={jobs}
-              setJobs={setJobs}
+              onDelete={handleDeleteJob} // Pass down the delete handler function
               onSeeDetails={viewJobDetails}
-              apiBaseUrl={API_BASE_URL}
             />
           }
         />
         <Route
           path="/post-a-job"
-          element={
-            <PostJobPage onAddJob={handleAddJob} navigateToHome={viewHome} />
-          }
+          element={<PostJobPage onAddJob={handleAddJob} />}
         />
         <Route
           path="/job-details"
@@ -110,7 +147,6 @@ function AppContent() {
   );
 }
 
-// Wrapper to provide routing context
 function App() {
   return (
     <Router>

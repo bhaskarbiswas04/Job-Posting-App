@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const PostJobPage = ({ onAddJob, navigateToHome }) => {
+const PostJobPage = ({ onAddJob }) => {
   const [formData, setFormData] = useState({
     title: "",
     company: "",
@@ -25,7 +25,6 @@ const PostJobPage = ({ onAddJob, navigateToHome }) => {
     e.preventDefault();
     setError("");
 
-    // Form field validation verification
     const {
       title,
       company,
@@ -49,13 +48,11 @@ const PostJobPage = ({ onAddJob, navigateToHome }) => {
       return;
     }
 
-    // Process strings containing sequential rows/items into clean structural arrays
     const qualificationsArray = qualifications
       .split(/[\n,]+/)
       .map((item) => item.trim())
       .filter((item) => item.length > 0);
 
-    // Form data payload compiled for database compatibility
     const newJob = {
       title,
       company,
@@ -66,8 +63,8 @@ const PostJobPage = ({ onAddJob, navigateToHome }) => {
       qualifications: qualificationsArray,
     };
 
+    // This calls our backend hook, which throws the success toast and redirects home
     onAddJob(newJob);
-    navigateToHome();
   };
 
   return (

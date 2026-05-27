@@ -2,30 +2,8 @@ import { useState } from "react";
 import SearchBar from "../components/SearchBar";
 import JobCard from "../components/JobCard";
 
-const HomePage = ({ jobs, setJobs, onSeeDetails, apiBaseUrl }) => {
+const HomePage = ({ jobs, onDelete, onSeeDetails }) => {
   const [searchTerm, setSearchTerm] = useState("");
-
-  // Handle server-side deletion request
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this job posting?"))
-      return;
-
-    try {
-      const response = await fetch(`${apiBaseUrl}/${id}`, {
-        method: "DELETE",
-      });
-
-      if (response.ok) {
-        // Look for matching backend _id parameters
-        setJobs(jobs.filter((job) => job._id !== id));
-      } else {
-        const errorData = await response.json();
-        alert(`Deletion Failed: ${errorData.message}`);
-      }
-    } catch (error) {
-      console.error("Error deleting record:", error);
-    }
-  };
 
   const filteredJobs = jobs.filter((job) =>
     job.title.toLowerCase().includes(searchTerm.toLowerCase()),
@@ -42,9 +20,9 @@ const HomePage = ({ jobs, setJobs, onSeeDetails, apiBaseUrl }) => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredJobs.map((job) => (
               <JobCard
-                key={job._id} // Switch framework references to mongoDB string _id fields
+                key={job._id}
                 job={job}
-                onDelete={handleDelete}
+                onDelete={onDelete}
                 onSeeDetails={onSeeDetails}
               />
             ))}
