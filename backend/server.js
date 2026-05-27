@@ -13,7 +13,20 @@ connectDB();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-app.use(cors());
+const cors = require("cors");
+
+// Define exactly who is allowed to talk to your server
+const corsOptions = {
+  origin: [
+    "http://localhost:5173",
+    "https://job-posting-app-client.vercel.app/",
+  ], // Add your local frontend URL here
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 app.use("/api/jobs", jobRoutes);
