@@ -1,17 +1,22 @@
 import { useState, useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  useNavigate,
+} from "react-router-dom";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import JobDetailsPage from "./pages/JobDetailsPage";
 import PostJobPage from "./pages/PostJobPage";
 
-// base deployment route string reference
 const API_BASE_URL = "https://job-posting-app-server.vercel.app/api/jobs";
 
-function App() {
+function AppContent() {
   const [jobs, setJobs] = useState([]);
-  const [currentPage, setCurrentPage] = useState("home"); // 'home', 'details', 'post-job'
   const [selectedJob, setSelectedJob] = useState(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
 
   // Fetch live jobs data on mount
   useEffect(() => {
@@ -35,7 +40,7 @@ function App() {
     fetchJobs();
   }, []);
 
-  // Sync added posts with your Vercel/MongoDB database instance
+  // Handle posting a new job
   const handleAddJob = async (newJobData) => {
     try {
       const response = await fetch(API_BASE_URL, {
@@ -47,7 +52,7 @@ function App() {
 
       if (response.ok) {
         setJobs((prevJobs) => [savedJob, ...prevJobs]);
-        setCurrentPage("home");
+        navigate("/"); // Clean URL redirection to Home
       } else {
         alert(`Error saving: ${savedJob.message}`);
       }
@@ -58,46 +63,59 @@ function App() {
 
   const viewJobDetails = (job) => {
     setSelectedJob(job);
-    setCurrentPage("details");
+    navigate("/job-details");
   };
 
   const viewHome = () => {
     setSelectedJob(null);
-    setCurrentPage("home");
+    navigate("/");
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="font-sans antialiased text-gray-900 bg-gray-50 min-h-screen">
-      <Navbar
-        onNavigate={(page) => setCurrentPage(page)}
-        currentPage={currentPage}
-      />
+      <Navbar />
 
-      {loading ? (
-        <div className="flex justify-center items-center min-h-[50vh]">
-          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-600"></div>
-        </div>
-      ) : (
-        <>
-          {currentPage === "home" && (
+      <Routes>
+        <Route
+          path="/"
+          element={
             <HomePage
               jobs={jobs}
               setJobs={setJobs}
               onSeeDetails={viewJobDetails}
               apiBaseUrl={API_BASE_URL}
             />
-          )}
-
-          {currentPage === "details" && (
-            <JobDetailsPage job={selectedJob} onBack={viewHome} />
-          )}
-
-          {currentPage === "post-job" && (
+          }
+        />
+        <Route
+          path="/post-a-job"
+          element={
             <PostJobPage onAddJob={handleAddJob} navigateToHome={viewHome} />
-          )}
-        </>
-      )}
+          }
+        />
+        <Route
+          path="/job-details"
+          element={<JobDetailsPage job={selectedJob} onBack={viewHome} />}
+        />
+      </Routes>
     </div>
+  );
+}
+
+// Wrapper to provide routing context
+function App() {
+  return (
+    <Router>
+      <AppContent />
+    </Router>
   );
 }
 

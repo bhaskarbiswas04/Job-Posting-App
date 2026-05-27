@@ -1,26 +1,31 @@
-const Navbar = ({ onNavigate, currentPage }) => {
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+
+const Navbar = () => {
+  const location = useLocation();
+
   return (
     <nav className="bg-blue-600 text-white px-6 py-4 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div
-          onClick={() => onNavigate("home")}
+        <Link
+          to="/"
           className="text-xl font-bold tracking-wide cursor-pointer select-none"
         >
           Intern House
-        </div>
+        </Link>
         <div className="flex gap-6 text-sm font-medium">
-          <button
-            onClick={() => onNavigate("home")}
-            className={`hover:underline transition-all ${currentPage === "home" ? "underline opacity-100" : "opacity-80"}`}
+          <Link
+            to="/"
+            className={`hover:underline transition-all ${location.pathname === "/" ? "underline opacity-100" : "opacity-80"}`}
           >
             Job Postings
-          </button>
-          <button
-            onClick={() => onNavigate("post-job")}
-            className={`hover:underline transition-all ${currentPage === "post-job" ? "underline opacity-100" : "opacity-80"}`}
+          </Link>
+          <Link
+            to="/post-a-job"
+            className={`hover:underline transition-all ${location.pathname === "/post-a-job" ? "underline opacity-100" : "opacity-80"}`}
           >
             Post a Job
-          </button>
+          </Link>
         </div>
       </div>
     </nav>
