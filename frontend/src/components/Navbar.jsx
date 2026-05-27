@@ -1,20 +1,26 @@
-// import React from "react";
-
-const Navbar = () => {
+const Navbar = ({ onNavigate, currentPage }) => {
   return (
     <nav className="bg-blue-600 text-white px-6 py-4 shadow-md">
       <div className="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-4">
-        <div className="text-xl font-bold tracking-wide">Intern House</div>
+        <div
+          onClick={() => onNavigate("home")}
+          className="text-xl font-bold tracking-wide cursor-pointer select-none"
+        >
+          Intern House
+        </div>
         <div className="flex gap-6 text-sm font-medium">
-          <a href="#" className="hover:underline transition-all">
+          <button
+            onClick={() => onNavigate("home")}
+            className={`hover:underline transition-all ${currentPage === "home" ? "underline opacity-100" : "opacity-80"}`}
+          >
             Job Postings
-          </a>
-          <a
-            href="#"
-            className="hover:underline opacity-80 hover:opacity-100 transition-all"
+          </button>
+          <button
+            onClick={() => onNavigate("post-job")}
+            className={`hover:underline transition-all ${currentPage === "post-job" ? "underline opacity-100" : "opacity-80"}`}
           >
             Post a Job
-          </a>
+          </button>
         </div>
       </div>
     </nav>

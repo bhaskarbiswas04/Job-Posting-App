@@ -2,6 +2,7 @@ import { useState } from "react";
 import Navbar from "./components/Navbar";
 import HomePage from "./pages/HomePage";
 import JobDetailsPage from "./pages/JobDetailsPage";
+import PostJobPage from "./pages/PostJobPage";
 
 // Rich mock data to facilitate complete previews
 const initialJobsData = [
@@ -96,20 +97,42 @@ const initialJobsData = [
 
 function App() {
   const [jobs, setJobs] = useState(initialJobsData);
+  const [currentPage, setCurrentPage] = useState("home"); // 'home', 'details', 'post-job'
   const [selectedJob, setSelectedJob] = useState(null);
 
-  return (
-    <div className="font-sans antialiased text-gray-900">
-      <Navbar />
+  // Appends new dynamic items straight into state array
+  const handleAddJob = (newJob) => {
+    setJobs((prevJobs) => [newJob, ...prevJobs]);
+  };
 
-      {selectedJob ? (
-        <JobDetailsPage job={selectedJob} onBack={() => setSelectedJob(null)} />
-      ) : (
-        <HomePage
-          jobs={jobs}
-          setJobs={setJobs}
-          onSeeDetails={(job) => setSelectedJob(job)}
-        />
+  const viewJobDetails = (job) => {
+    setSelectedJob(job);
+    setCurrentPage("details");
+  };
+
+  const viewHome = () => {
+    setSelectedJob(null);
+    setCurrentPage("home");
+  };
+
+  return (
+    <div className="font-sans antialiased text-gray-900 bg-gray-50 min-h-screen">
+      {/* Dynamic Navigation Pass-throughs */}
+      <Navbar
+        onNavigate={(page) => setCurrentPage(page)}
+        currentPage={currentPage}
+      />
+
+      {currentPage === "home" && (
+        <HomePage jobs={jobs} setJobs={setJobs} onSeeDetails={viewJobDetails} />
+      )}
+
+      {currentPage === "details" && (
+        <JobDetailsPage job={selectedJob} onBack={viewHome} />
+      )}
+
+      {currentPage === "post-job" && (
+        <PostJobPage onAddJob={handleAddJob} navigateToHome={viewHome} />
       )}
     </div>
   );
